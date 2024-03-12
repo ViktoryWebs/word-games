@@ -1,44 +1,49 @@
 import { useEffect, useState } from "react";
 import Word from "./Word";
 
+const length = 5;
+const solutionsTemplate = Array(length + 1).fill(Array(length).fill(""));
+
 const Wordle = () => {
-  const length = 5;
-  const [solutionList, setSolutionList] = useState(
-    Array(length + 1).fill(Array(length).fill(""))
-  );
-  let solutionIndex = 0;
-  let currSolution = solutionList[solutionIndex];
-  let letterIndex = 0;
+  const [solutionsList, setSolutionsList] = useState(solutionsTemplate);
+  const [currIndex, setCurrIndex] = useState(0);
+  const [letterIndex, setLetterIndex] = useState(0);
 
   /* let word = "great"; */ /* TODO: call API to fetch new words every game */
 
   useEffect(() => {
-    document.addEventListener("keydown", (e) => {
-      if(letterIndex < length) {
-        if(e.key.length === 1 && e.key.match(/[a-z]/)) {
-          currSolution[letterIndex++] = e.key;
-          console.log(letterIndex);
-          console.log(currSolution);
+    if(letterIndex < length) {
+      document.addEventListener("keydown", (e) => {
+        if (e.key.length === 1 && e.key.match(/[a-z]/g)) {
+          const updatedSolution = solutionsList[currIndex].slice();
+          updatedSolution[letterIndex] = e.key;
+  
+          const updatedSolutions = solutionsList.slice();
+          updatedSolutions[currIndex] = updatedSolution;
+          setSolutionsList(updatedSolutions);
+          setLetterIndex(letterIndex + 1);
+          console.log(letterIndex < length);
         }
-        if(e.key === "Backspace") {
-          currSolution[letterIndex-1] = '';
-          letterIndex-1 > 0 && letterIndex--;
-          console.log(letterIndex);
-          console.log(currSolution);
-        }
-      }
-    })
-    return () => {
-      window.removeEventListener("keydown", () => {});
-    };
-  }, [currSolution, letterIndex]);
+        /* if (e.key === "Backspace" && letterIndex > 0) {
+          currSolution[--letterIndex] = "";
+        } */
+      });
+  
+      return () => {
+        window.removeEventListener("keydown", () => {});
+      };
+    }
+    
+  }, [currIndex, letterIndex, solutionsList]);
 
   return (
     <div className="mt-5">
       <div className="flex flex-col gap-1 items-center">
-        {solutionList.map((solution, index) => {
+        {solutionsList.map((solution, index) => {
           return <Word key={index} solution={solution} />;
         })}
+        {letterIndex}
+        {letterIndex < length ? "true" : "false"}
       </div>
     </div>
   );

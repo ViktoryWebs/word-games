@@ -8,7 +8,7 @@ const Word = ({solution}) => {
     <div className="flex gap-1">
       {
         solution.map((letter, index) => {
-          return <Tile key={index} letter={letter} handle />
+          return <Tile key={index} letter={letter} />
         })
       }
     </div>
