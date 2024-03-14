@@ -1,50 +1,109 @@
-import { useEffect, useState } from "react";
-import Word from "./Word";
+import { createContext, useReducer, useState } from "react";
+import Board from "./Board";
+import Keyboard from "./Keyboard";
+import fiveLetterWords from "./resources/fiveLetterWords";
 
-const length = 5;
-const solutionsTemplate = Array(length + 1).fill(Array(length).fill(""));
+const wordLength = 5;
 
-const Wordle = () => {
-  const [solutionsList, setSolutionsList] = useState(solutionsTemplate);
-  const [currIndex, setCurrIndex] = useState(0);
-  const [letterIndex, setLetterIndex] = useState(0);
+const defaultBoard = Array(wordLength + 1).fill(Array(wordLength).fill(""));
+const defaultTileColors = Array(wordLength + 1).fill(
+  Array(wordLength).fill("")
+);
 
-  /* let word = "great"; */ /* TODO: call API to fetch new words every game */
+const wordIndex = Math.round(Math.random() * (fiveLetterWords.length - 1));
+/* const word = fiveLetterWords[wordIndex].toUpperCase().split(""); */
+const word = "FEAST".split("");
+const characterMap = {};
 
-  useEffect(() => {
-    if(letterIndex < length) {
-      document.addEventListener("keydown", (e) => {
-        if (e.key.length === 1 && e.key.match(/[a-z]/g)) {
-          const updatedSolution = solutionsList[currIndex].slice();
-          updatedSolution[letterIndex] = e.key;
-  
-          const updatedSolutions = solutionsList.slice();
-          updatedSolutions[currIndex] = updatedSolution;
-          setSolutionsList(updatedSolutions);
-          setLetterIndex(letterIndex + 1);
-          console.log(letterIndex < length);
-        }
-        /* if (e.key === "Backspace" && letterIndex > 0) {
-          currSolution[--letterIndex] = "";
-        } */
-      });
-  
-      return () => {
-        window.removeEventListener("keydown", () => {});
+const generateCharacterMap = () => {
+  for (let i = 0; i < wordLength; i++) {
+    let c = word[i];
+    if (characterMap[c]) {
+      characterMap[c] = {
+        freq: characterMap[c].freq + 1,
+        pos: [...characterMap[c].pos, i],
+      };
+    } else {
+      characterMap[c] = {
+        freq: 1,
+        pos: [i],
       };
     }
-    
-  }, [currIndex, letterIndex, solutionsList]);
+  }
+};
+
+generateCharacterMap();
+
+export const WordleContext = createContext();
+
+const boardReducer = (board, action) => {
+  const updatedBoard = board.board.slice();
+  const updatedAttempt = updatedBoard[action.attempt].slice();
+  const updatedTileColors = board.tileColors.slice();
+  let prevAttempt = [];
+  let updatedAttemptTileColors = [];
+
+  switch (action.type) {
+    case "letter":
+      updatedAttempt[action.letterPos] = action.key;
+      updatedBoard[action.attempt] = updatedAttempt;
+      return { board: [...updatedBoard], tileColors: [...board.tileColors] };
+
+    case "enter":
+      prevAttempt = board.board[action.attempt - 1].slice();
+      updatedAttemptTileColors = updatedTileColors[action.attempt - 1].slice();
+
+      for (let i = 0; i < wordLength; i++) {
+        if (prevAttempt[i] === word[i]) {
+          updatedAttemptTileColors[i] = "correct";
+        } else {
+          if (word.includes(prevAttempt[i])) {
+            let positions = characterMap[prevAttempt[i]].pos;
+            
+            updatedAttemptTileColors[i] = "present";
+          } else {
+            updatedAttemptTileColors[i] = "incorrect";
+          }
+        }
+      }
+      updatedTileColors[action.attempt - 1] = updatedAttemptTileColors;
+      return { board: [...board.board], tileColors: [...updatedTileColors] };
+
+    case "delete":
+      updatedAttempt[action.letterPos] = "";
+      updatedBoard[action.attempt] = updatedAttempt;
+      return { board: [...updatedBoard], tileColors: [...board.tileColors] };
+
+    default:
+      throw Error("Unknown action: " + action.type);
+  }
+};
+
+const Wordle = () => {
+  const [board, setBoard] = useReducer(boardReducer, {
+    board: defaultBoard,
+    tileColors: defaultTileColors,
+  });
+  const [currAttempt, setCurrAttempt] = useState({ attempt: 0, letterPos: 0 });
+
+  console.log(characterMap);
 
   return (
-    <div className="mt-5">
-      <div className="flex flex-col gap-1 items-center">
-        {solutionsList.map((solution, index) => {
-          return <Word key={index} solution={solution} />;
-        })}
-        {letterIndex}
-        {letterIndex < length ? "true" : "false"}
-      </div>
+    <div className="mt-4">
+      <WordleContext.Provider
+        value={{ wordLength, board, setBoard, currAttempt, setCurrAttempt }}
+      >
+        <div className="flex flex-col gap-6 items-center justify-between">
+          <Board />
+          <span className="dark:text-white">
+            {/* {wordIndex} <br /> */}
+            {word}
+            {/*  <br /> */}
+            {/* {currAttempt.attempt + ", " + currAttempt.letterPos} */}
+          </span>
+          <Keyboard />
+        </div>
+      </WordleContext.Provider>
     </div>
   );
 };
