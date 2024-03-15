@@ -1,30 +1,49 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { WordleContext } from "./Wordle";
-import { keys } from "./resources/keys";
 import { FaDeleteLeft } from "react-icons/fa6";
+import keys from "./resources/keys";
+import fiveLetterWords from "./resources/fiveLetterWords";
 
 const Keyboard = () => {
-  const { wordLength, board, setBoard, currAttempt, setCurrAttempt } =
+  const { word, wordLength, board, setBoard, currAttempt, setCurrAttempt } =
     useContext(WordleContext);
+
+  const [prevAttempt, setPrevAttempt] = useState([]);
+
+  /* const correctBtnColor = "bg-green-600 text-white border-green-600";
+  const presentBtnColor = "bg-yellow-600 text-white border-yellow-600";
+  const incorrectBtnColor = "bg-gray-500 text-white border-gray-500";
+
+  const setBtnColor = () => {
+    for()
+    if(word.includes)
+  } */
 
   const handleKeyClick = (key) => {
     if (key === "ENTER") {
       if (currAttempt.attempt < wordLength) {
-        const currAttemptWord = board.board[currAttempt.attempt].slice().join("");
+        const currAttemptWord = board.board[currAttempt.attempt]
+          .slice()
+          .join("");
         console.log(currAttemptWord);
-        if (currAttemptWord.length === wordLength) {
-          setBoard({
-            type: "enter",
-            attempt: currAttempt.attempt + 1,
-            letterPos: 0,
-          });
-          setCurrAttempt({
-            attempt: currAttempt.attempt + 1,
-            letterPos: 0,
-          });
-        } else {
+        if (currAttemptWord.length < wordLength) {
           console.log("Not enough letters!");
+          return;
         }
+        if (!fiveLetterWords.includes(currAttemptWord.toLowerCase())) {
+          console.log("Not in word list!");
+          return;
+        }
+        setBoard({
+          type: "enter",
+          attempt: currAttempt.attempt + 1,
+          letterPos: 0,
+        });
+        setCurrAttempt({
+          attempt: currAttempt.attempt + 1,
+          letterPos: 0,
+        });
+        setPrevAttempt(currAttemptWord.split(""));
       }
     } else if (key === "DELETE") {
       if (currAttempt.letterPos > 0) {

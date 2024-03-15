@@ -9,6 +9,7 @@ const incorrectTileColor = "bg-gray-500 text-white border-gray-500";
 const Tile = ({ attemptNum, letterPos }) => {
   const { board } = useContext(WordleContext);
   const letter = board.board[attemptNum][letterPos];
+
   const tileColor = board.tileColors[attemptNum][letterPos];
   return (
     <span
@@ -21,7 +22,8 @@ const Tile = ({ attemptNum, letterPos }) => {
           : tileColor === "incorrect"
           ? incorrectTileColor
           : ""
-      }`}
+      }
+      `}
     >
       {letter}
     </span>
