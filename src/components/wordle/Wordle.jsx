@@ -13,7 +13,7 @@ const defaultTileColors = Array(wordLength + 1).fill(
 
 const wordIndex = Math.round(Math.random() * (fiveLetterWords.length - 1));
 const word = fiveLetterWords[wordIndex].toUpperCase().split("");
-/* const word = "ERUPT".split(""); */
+/* const word = "LLAMA".split(""); */
 const characterMap = generateCharacterMap(word);
 
 export const WordleContext = createContext();
@@ -64,15 +64,15 @@ const boardReducer = (board, action) => {
                 updatedAttemptTileColors[attemptPosArr[i]] = "incorrect";
               }
             }
-            if(matches === 0) {
-              for(let i = 0; i < characterMap[key].freq; i++) {
+            if (matches < characterMap[key].freq) {
+              for (let i = matches; i < characterMap[key].freq; i++) {
                 updatedAttemptTileColors[attemptPosArr[i]] = "present";
               }
             }
           }
         }
       });
-      
+
       updatedTileColors[action.attempt - 1] = updatedAttemptTileColors;
       return { board: [...board.board], tileColors: [...updatedTileColors] };
 
@@ -96,7 +96,14 @@ const Wordle = () => {
   return (
     <div className="mt-4">
       <WordleContext.Provider
-        value={{ word, wordLength, board, setBoard, currAttempt, setCurrAttempt }}
+        value={{
+          word,
+          wordLength,
+          board,
+          setBoard,
+          currAttempt,
+          setCurrAttempt,
+        }}
       >
         <div className="flex flex-col gap-6 items-center justify-between">
           <Board />
