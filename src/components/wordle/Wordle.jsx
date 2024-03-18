@@ -48,7 +48,7 @@ const boardReducer = (board, action) => {
 
           if (prevAttemptCharacterMap[key].freq === characterMap[key].freq) {
             for (let i = 0; i < prevAttemptCharacterMap[key].freq; i++) {
-              if (originalPosArr[i] === attemptPosArr[i]) {
+              if (originalPosArr.includes(attemptPosArr[i])) {
                 updatedAttemptTileColors[attemptPosArr[i]] = "correct";
               } else {
                 updatedAttemptTileColors[attemptPosArr[i]] = "present";
@@ -105,9 +105,9 @@ const Wordle = () => {
           setCurrAttempt,
         }}
       >
-        <div className="flex flex-col gap-6 items-center justify-between">
+        <div style={{height: "calc(100vh - 100px)"}} className="flex flex-col gap-6 items-center justify-between">
+          <span className="d-block">{word}</span>
           <Board />
-          <span className="dark:text-white">{word}</span>
           <Keyboard />
         </div>
       </WordleContext.Provider>

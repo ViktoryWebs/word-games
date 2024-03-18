@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { WordleContext } from "./Wordle";
-import { FaDeleteLeft } from "react-icons/fa6";
+import { MdOutlineBackspace } from "react-icons/md";
 import keys from "./resources/keys";
 import fiveLetterWords from "./resources/fiveLetterWords";
 
@@ -11,10 +11,10 @@ const Keyboard = () => {
   const [keyColors, setKeyColors] = useState({});
   const [prevAttempt, setPrevAttempt] = useState(0);
 
-  const correctBtnColor = " bg-green-600 text-white border-green-600";
-  const presentBtnColor = " bg-yellow-600 text-white border-yellow-600";
-  const incorrectBtnColor = " bg-gray-700 text-white border-gray-700";
-  const defaultBtnColor = " bg-gray-200 dark:text-white dark:bg-gray-500";
+  const correctBtnColor = "bg-green-600 text-white";
+  const presentBtnColor = "bg-yellow-600 text-white";
+  const incorrectBtnColor = "bg-gray-500 text-white dark:bg-gray-700";
+  const defaultBtnColor = "bg-gray-300 dark:text-white dark:bg-gray-500";
 
   const updateKeyColors = () => {
     if (currAttempt.attempt > 0) {
@@ -27,19 +27,20 @@ const Keyboard = () => {
           keyColors[prevAttemptBoard[i]] = prevAttemptColors[i];
         } else {
           if (
-            updatedKeyColors[prevAttemptBoard[i]] === "present" &&
+            (updatedKeyColors[prevAttemptBoard[i]] === "incorrect" ||
+              updatedKeyColors[prevAttemptBoard[i]] === "present") &&
             prevAttemptColors[i] === "correct"
           ) {
             updatedKeyColors[prevAttemptBoard[i]] = prevAttemptColors[i];
           }
         }
       }
-      console.log(updatedKeyColors);
+      // console.log(updatedKeyColors);
       setKeyColors(updatedKeyColors);
     }
   };
 
-  if(currAttempt.attempt > prevAttempt) {
+  if (currAttempt.attempt > prevAttempt) {
     updateKeyColors();
     setPrevAttempt(currAttempt.attempt);
   }
@@ -96,6 +97,18 @@ const Keyboard = () => {
     }
   };
 
+  // document.addEventListener("keydown", (e) => {
+  //   if (e.key.length === 1 && e.key.match(/[A-Za-z]/)) {
+  //     handleKeyClick(e.key.toUpperCase());
+  //   }
+  //   else if (e.key === "Enter") {
+  //     handleKeyClick(e.key.toUpperCase());
+  //   }
+  //   else if (e.key === "Backspace" || e.key === "Delete") {
+  //     handleKeyClick("DELETE");
+  //   }
+  // });
+
   return (
     <div className="flex flex-col gap-1.5 items-center">
       {keys.map((row, rowIndex) => {
@@ -105,7 +118,7 @@ const Keyboard = () => {
               return (
                 <button
                   className={
-                    "flex items-center justify-center max-sm:min-w-7 sm:min-w-8 md:min-w-10 h-14 rounded font-semibold " +
+                    "flex items-center justify-center max-sm:min-w-8 sm:min-w-9 md:min-w-10 h-14 rounded font-semibold " +
                     `${
                       keyColors[key]
                         ? keyColors[key] === "correct"
@@ -120,14 +133,14 @@ const Keyboard = () => {
                   onClick={() => handleKeyClick(key)}
                 >
                   {key === "ENTER" ? (
-                    <span className="text-sm p-1 font-bold">{key}</span>
+                    <span className="text-sm px-2 font-bold">{key}</span>
                   ) : key === "DELETE" ? (
-                    <span className="text-lg">
+                    <span className="text-lg px-4">
                       {" "}
-                      <FaDeleteLeft />{" "}
+                      <MdOutlineBackspace />{" "}
                     </span>
                   ) : (
-                    <span className="text-lg">{key}</span>
+                    <span className="text-xl font-semibold">{key}</span>
                   )}
                 </button>
               );
