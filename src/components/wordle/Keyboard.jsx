@@ -5,19 +5,44 @@ import keys from "./resources/keys";
 import fiveLetterWords from "./resources/fiveLetterWords";
 
 const Keyboard = () => {
-  const { word, wordLength, board, setBoard, currAttempt, setCurrAttempt } =
+  const { wordLength, board, setBoard, currAttempt, setCurrAttempt } =
     useContext(WordleContext);
 
-  const [prevAttempt, setPrevAttempt] = useState([]);
+  const [keyColors, setKeyColors] = useState({});
+  const [prevAttempt, setPrevAttempt] = useState(0);
 
-  /* const correctBtnColor = "bg-green-600 text-white border-green-600";
-  const presentBtnColor = "bg-yellow-600 text-white border-yellow-600";
-  const incorrectBtnColor = "bg-gray-500 text-white border-gray-500";
+  const correctBtnColor = " bg-green-600 text-white border-green-600";
+  const presentBtnColor = " bg-yellow-600 text-white border-yellow-600";
+  const incorrectBtnColor = " bg-gray-700 text-white border-gray-700";
+  const defaultBtnColor = " bg-gray-200 dark:text-white dark:bg-gray-500";
 
-  const setBtnColor = () => {
-    for()
-    if(word.includes)
-  } */
+  const updateKeyColors = () => {
+    if (currAttempt.attempt > 0) {
+      const prevAttemptBoard = board.board[currAttempt.attempt - 1];
+      const prevAttemptColors = board.tileColors[currAttempt.attempt - 1];
+      const updatedKeyColors = Object(keyColors);
+
+      for (let i = 0; i < prevAttemptBoard.length; i++) {
+        if (!keyColors[prevAttemptBoard[i]]) {
+          keyColors[prevAttemptBoard[i]] = prevAttemptColors[i];
+        } else {
+          if (
+            updatedKeyColors[prevAttemptBoard[i]] === "present" &&
+            prevAttemptColors[i] === "correct"
+          ) {
+            updatedKeyColors[prevAttemptBoard[i]] = prevAttemptColors[i];
+          }
+        }
+      }
+      console.log(updatedKeyColors);
+      setKeyColors(updatedKeyColors);
+    }
+  };
+
+  if(currAttempt.attempt > prevAttempt) {
+    updateKeyColors();
+    setPrevAttempt(currAttempt.attempt);
+  }
 
   const handleKeyClick = (key) => {
     if (key === "ENTER") {
@@ -25,7 +50,6 @@ const Keyboard = () => {
         const currAttemptWord = board.board[currAttempt.attempt]
           .slice()
           .join("");
-        console.log(currAttemptWord);
         if (currAttemptWord.length < wordLength) {
           console.log("Not enough letters!");
           return;
@@ -43,7 +67,6 @@ const Keyboard = () => {
           attempt: currAttempt.attempt + 1,
           letterPos: 0,
         });
-        setPrevAttempt(currAttemptWord.split(""));
       }
     } else if (key === "DELETE") {
       if (currAttempt.letterPos > 0) {
@@ -81,7 +104,18 @@ const Keyboard = () => {
             {row.map((key, index) => {
               return (
                 <button
-                  className="flex items-center justify-center max-sm:min-w-7 sm:min-w-8 md:min-w-10 h-14 rounded bg-gray-200 dark:text-white dark:bg-gray-500 font-semibold"
+                  className={
+                    "flex items-center justify-center max-sm:min-w-7 sm:min-w-8 md:min-w-10 h-14 rounded font-semibold " +
+                    `${
+                      keyColors[key]
+                        ? keyColors[key] === "correct"
+                          ? correctBtnColor
+                          : keyColors[key] === "present"
+                          ? presentBtnColor
+                          : incorrectBtnColor
+                        : defaultBtnColor
+                    }`
+                  }
                   key={index}
                   onClick={() => handleKeyClick(key)}
                 >
