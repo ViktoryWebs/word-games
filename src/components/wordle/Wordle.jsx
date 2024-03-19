@@ -1,4 +1,6 @@
 import { createContext, useReducer, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.min.css';
 import Board from "./Board";
 import Keyboard from "./Keyboard";
 import fiveLetterWords from "./resources/fiveLetterWords";
@@ -17,6 +19,16 @@ const word = fiveLetterWords[wordIndex].toUpperCase().split("");
 const characterMap = generateCharacterMap(word);
 
 export const WordleContext = createContext();
+
+const showToast = (msg, type="default") => {
+  switch(type) {
+    case "info": return toast.info(msg);
+    case "success": return toast.success(msg);
+    case "warning": return toast.warning(msg);
+    case "error": return toast.error(msg);
+    default: return toast(msg);
+  }
+};
 
 const boardReducer = (board, action) => {
   const updatedBoard = board.board.slice();
@@ -94,7 +106,8 @@ const Wordle = () => {
   const [currAttempt, setCurrAttempt] = useState({ attempt: 0, letterPos: 0 });
 
   return (
-    <div className="mt-4">
+    <div>
+      <ToastContainer position="top-center" theme="dark" draggable closeOnClick/>
       <WordleContext.Provider
         value={{
           word,
@@ -103,9 +116,13 @@ const Wordle = () => {
           setBoard,
           currAttempt,
           setCurrAttempt,
+          showToast,
         }}
       >
-        <div style={{height: "calc(100vh - 100px)"}} className="flex flex-col gap-6 items-center justify-between">
+        <div
+          style={{ height: "calc(100vh - 135px)" }}
+          className="flex flex-col gap-6 items-center justify-between"
+        >
           <span className="d-block">{word}</span>
           <Board />
           <Keyboard />

@@ -5,8 +5,14 @@ import keys from "./resources/keys";
 import fiveLetterWords from "./resources/fiveLetterWords";
 
 const Keyboard = () => {
-  const { wordLength, board, setBoard, currAttempt, setCurrAttempt } =
-    useContext(WordleContext);
+  const {
+    wordLength,
+    board,
+    setBoard,
+    currAttempt,
+    setCurrAttempt,
+    showToast,
+  } = useContext(WordleContext);
 
   const [keyColors, setKeyColors] = useState({});
   const [prevAttempt, setPrevAttempt] = useState(0);
@@ -47,25 +53,33 @@ const Keyboard = () => {
 
   const handleKeyClick = (key) => {
     if (key === "ENTER") {
-      if (currAttempt.attempt < wordLength) {
+      if (currAttempt.attempt < 6) {
         const currAttemptWord = board.board[currAttempt.attempt]
           .slice()
           .join("");
         if (currAttemptWord.length < wordLength) {
           console.log("Not enough letters!");
+          showToast("Not enough letters!", "warning");
           return;
         }
         if (!fiveLetterWords.includes(currAttemptWord.toLowerCase())) {
           console.log("Not in word list!");
+          showToast("Not in word list!", "error");
           return;
         }
         setBoard({
           type: "enter",
-          attempt: currAttempt.attempt + 1,
+          attempt:
+            currAttempt.attempt < 5
+              ? currAttempt.attempt + 1
+              : currAttempt.attempt,
           letterPos: 0,
         });
         setCurrAttempt({
-          attempt: currAttempt.attempt + 1,
+          attempt: 
+            currAttempt.attempt < 5
+              ? currAttempt.attempt + 1
+              : currAttempt.attempt,
           letterPos: 0,
         });
       }
