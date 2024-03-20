@@ -1,8 +1,8 @@
-import { useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { WordleContext } from "./Wordle";
 import { MdOutlineBackspace } from "react-icons/md";
 import keys from "./resources/keys";
-import fiveLetterWords from "./resources/fiveLetterWords";
+import fiveLetterWords from "./resources/wordList";
 
 const Keyboard = () => {
   const {
@@ -12,6 +12,8 @@ const Keyboard = () => {
     currAttempt,
     setCurrAttempt,
     showToast,
+    gameResult,
+    updateGameResult
   } = useContext(WordleContext);
 
   const [keyColors, setKeyColors] = useState({});
@@ -22,7 +24,7 @@ const Keyboard = () => {
   const incorrectBtnColor = "bg-gray-500 text-white dark:bg-gray-700";
   const defaultBtnColor = "bg-gray-300 dark:text-white dark:bg-gray-500";
 
-  const updateKeyColors = () => {
+  const updateKeyColors = useCallback(() => {
     if (currAttempt.attempt > 0) {
       const prevAttemptBoard = board.board[currAttempt.attempt - 1];
       const prevAttemptColors = board.tileColors[currAttempt.attempt - 1];
@@ -41,15 +43,17 @@ const Keyboard = () => {
           }
         }
       }
-      // console.log(updatedKeyColors);
       setKeyColors(updatedKeyColors);
     }
-  };
+  }, [board.board, board.tileColors, currAttempt.attempt, keyColors]);
 
-  if (currAttempt.attempt > prevAttempt) {
-    updateKeyColors();
-    setPrevAttempt(currAttempt.attempt);
-  }
+  useEffect(() => {
+    if (currAttempt.attempt > prevAttempt) {
+      updateKeyColors();
+      setPrevAttempt(currAttempt.attempt);
+      updateGameResult();
+    }
+  }, [currAttempt.attempt, prevAttempt, updateGameResult, updateKeyColors])
 
   const handleKeyClick = (key) => {
     if (key === "ENTER") {
@@ -69,17 +73,11 @@ const Keyboard = () => {
         }
         setBoard({
           type: "enter",
-          attempt:
-            currAttempt.attempt < 5
-              ? currAttempt.attempt + 1
-              : currAttempt.attempt,
+          attempt: currAttempt.attempt + 1,
           letterPos: 0,
         });
         setCurrAttempt({
-          attempt: 
-            currAttempt.attempt < 5
-              ? currAttempt.attempt + 1
-              : currAttempt.attempt,
+          attempt: currAttempt.attempt + 1,
           letterPos: 0,
         });
       }
@@ -145,6 +143,7 @@ const Keyboard = () => {
                   }
                   key={index}
                   onClick={() => handleKeyClick(key)}
+                  disabled={currAttempt.attempt === 6 || gameResult}
                 >
                   {key === "ENTER" ? (
                     <span className="text-sm px-2 font-bold">{key}</span>

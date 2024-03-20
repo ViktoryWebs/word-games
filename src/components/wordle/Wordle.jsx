@@ -3,7 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.min.css';
 import Board from "./Board";
 import Keyboard from "./Keyboard";
-import fiveLetterWords from "./resources/fiveLetterWords";
+import wordList from "./resources/wordList";
 import generateCharacterMap from "./resources/generateCharacterMap";
 
 const wordLength = 5;
@@ -13,8 +13,8 @@ const defaultTileColors = Array(wordLength + 1).fill(
   Array(wordLength).fill("")
 );
 
-const wordIndex = Math.round(Math.random() * (fiveLetterWords.length - 1));
-const word = fiveLetterWords[wordIndex].toUpperCase().split("");
+const wordIndex = Math.round(Math.random() * (wordList.length - 1));
+const word = wordList[wordIndex].toUpperCase().split("");
 /* const word = "LLAMA".split(""); */
 const characterMap = generateCharacterMap(word);
 
@@ -32,7 +32,8 @@ const showToast = (msg, type="default") => {
 
 const boardReducer = (board, action) => {
   const updatedBoard = board.board.slice();
-  const updatedAttempt = updatedBoard[action.attempt].slice();
+  let updatedAttempt = null;
+  if(action.attempt < 6) updatedAttempt = updatedBoard[action.attempt].slice();
   const updatedTileColors = board.tileColors.slice();
   let prevAttempt = [];
   let updatedAttemptTileColors = [];
@@ -104,10 +105,31 @@ const Wordle = () => {
     tileColors: defaultTileColors,
   });
   const [currAttempt, setCurrAttempt] = useState({ attempt: 0, letterPos: 0 });
+  const outcome = ["lose", "win"];
+  const [gameResult, setGameResult] = useState();
+
+  const updateGameResult = () => {
+    if (currAttempt.attempt > 0) {
+      let countCorrectTiles = 0;
+      const prevAttemptColors = board.tileColors[currAttempt.attempt - 1];
+      for (let i = 0; i < prevAttemptColors.length; i++) {
+        if(prevAttemptColors[i] === "correct") countCorrectTiles++;
+      }
+      if(countCorrectTiles === 5) {
+        setGameResult(outcome[1]);
+        showToast("Magnificient! You won!", "success");
+      } else {
+        if(currAttempt.attempt === 6) {
+          setGameResult(outcome[0]);
+          showToast(word.join("") + ".\nBetter luck next time!");
+        }
+      }
+    }
+  }
 
   return (
     <div>
-      <ToastContainer position="top-center" theme="dark" draggable closeOnClick/>
+      <ToastContainer position="top-center" theme="dark" pauseOnHover={false} draggable closeOnClick/>
       <WordleContext.Provider
         value={{
           word,
@@ -117,13 +139,16 @@ const Wordle = () => {
           currAttempt,
           setCurrAttempt,
           showToast,
+          outcome,
+          gameResult,
+          updateGameResult,
         }}
       >
         <div
           style={{ height: "calc(100vh - 135px)" }}
-          className="flex flex-col gap-6 items-center justify-between"
+          className="flex flex-col gap-5 items-center justify-between"
         >
-          <span className="d-block">{word}</span>
+          <span className="d-block"></span>
           <Board />
           <Keyboard />
         </div>
