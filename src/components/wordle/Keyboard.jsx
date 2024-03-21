@@ -13,7 +13,7 @@ const Keyboard = () => {
     setCurrAttempt,
     showToast,
     gameResult,
-    updateGameResult
+    updateGameResult,
   } = useContext(WordleContext);
 
   const [keyColors, setKeyColors] = useState({});
@@ -53,7 +53,7 @@ const Keyboard = () => {
       setPrevAttempt(currAttempt.attempt);
       updateGameResult();
     }
-  }, [currAttempt.attempt, prevAttempt, updateGameResult, updateKeyColors])
+  }, [currAttempt.attempt, prevAttempt, updateGameResult, updateKeyColors]);
 
   const handleKeyClick = (key) => {
     if (key === "ENTER") {
@@ -80,6 +80,13 @@ const Keyboard = () => {
           attempt: currAttempt.attempt + 1,
           letterPos: 0,
         });
+        localStorage.setItem(
+          "currAttempt",
+          JSON.stringify({
+            attempt: currAttempt.attempt + 1,
+            letterPos: 0,
+          })
+        );
       }
     } else if (key === "DELETE") {
       if (currAttempt.letterPos > 0) {
