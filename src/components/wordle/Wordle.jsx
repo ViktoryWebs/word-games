@@ -71,17 +71,7 @@ const Wordle = () => {
     <div>
       <ToastContainer position="top-center" theme="dark" pauseOnHover={false} draggable closeOnClick />
       <WordleContext.Provider
-        value={{
-          wordLength,
-          board,
-          setBoard,
-          currAttempt,
-          setCurrAttempt,
-          showToast,
-          outcome,
-          gameResult,
-          updateGameResult,
-        }}
+        value={{ wordLength, board, setBoard, currAttempt, setCurrAttempt, showToast, outcome, gameResult, updateGameResult }}
       >
         {word.length === 0 ? (
           <TitleScreen setWord={setWord} />
