@@ -14,15 +14,16 @@ const Keyboard = () => {
     showToast,
     gameResult,
     updateGameResult,
+    tileAnimProps
   } = useContext(WordleContext);
 
   const [keyColors, setKeyColors] = useState({});
   const [prevAttempt, setPrevAttempt] = useState(0);
 
-  const correctBtnColor = "bg-green-600 text-white";
-  const presentBtnColor = "bg-yellow-600 text-white";
-  const incorrectBtnColor = "bg-gray-500 text-white dark:bg-gray-700";
-  const defaultBtnColor = "bg-gray-300 dark:text-white dark:bg-gray-500";
+  const correctBtnColor = "bg-green-600 border-b-green-700 active:bg-green-700 text-white";
+  const presentBtnColor = "bg-yellow-600 border-b-yellow-700 active:bg-yellow-700 text-white";
+  const incorrectBtnColor = "bg-gray-500 border-b-gray-600 active:bg-gray-600 text-white dark:bg-gray-700 dark:border-b-gray-800 dark:active:bg-gray-800";
+  const defaultBtnColor = "bg-gray-300 border-b-gray-400 active:bg-gray-400 dark:text-white dark:bg-gray-500 dark:border-b-gray-600 dark:active:bg-gray-600";
 
   const updateKeyColors = useCallback(() => {
     if (currAttempt.attempt > 0) {
@@ -57,6 +58,7 @@ const Keyboard = () => {
 
   const handleKeyClick = (key) => {
     if (key === "ENTER") {
+      tileAnimProps.current = {animDuration: 1,  animDelay: 0.5};
       if (currAttempt.attempt < 6) {
         const currAttemptWord = board.board[currAttempt.attempt]
           .slice()
@@ -137,7 +139,7 @@ const Keyboard = () => {
               return (
                 <button
                   className={
-                    "flex items-center justify-center max-sm:min-w-8 sm:min-w-9 md:min-w-10 h-14 rounded font-semibold " +
+                    "flex items-center justify-center max-sm:min-w-8 sm:min-w-9 md:min-w-10 h-14 rounded font-semibold border-b-4 transition-all " +
                     `${
                       keyColors[key]
                         ? keyColors[key] === "correct"

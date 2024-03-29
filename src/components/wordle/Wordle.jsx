@@ -1,4 +1,4 @@
-import { createContext, useEffect, useReducer, useState } from "react";
+import { createContext, useEffect, useReducer, useRef, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 import Board from "./Board";
@@ -17,18 +17,18 @@ const wordLength = 5;
 
 export const WordleContext = createContext();
 
-const showToast = (msg, type = "default") => {
+const showToast = (msg, type = "default", autoClose = true) => {
   switch (type) {
     case "info":
-      return toast.info(msg);
+      return toast.info(msg, { autoClose: autoClose });
     case "success":
-      return toast.success(msg);
+      return toast.success(msg, { autoClose: autoClose });
     case "warning":
-      return toast.warning(msg);
+      return toast.warning(msg, { autoClose: autoClose });
     case "error":
-      return toast.error(msg);
+      return toast.error(msg, { autoClose: autoClose });
     default:
-      return toast(msg);
+      return toast(msg, { autoClose: autoClose });
   }
 };
 
@@ -36,11 +36,12 @@ const Wordle = () => {
   const [word, setWord] = useState([]);
   const [board, setBoard] = useReducer(boardReducer, () => {
     const loadBoard = localStorage.getItem("board");
-    console.log(loadBoard)
-    console.log(JSON.parse(loadBoard))
+    console.log(loadBoard);
+    console.log(JSON.parse(loadBoard));
     return JSON.parse(loadBoard);
   });
   const [currAttempt, setCurrAttempt] = useState({ attempt: 0, letterPos: 0 });
+  const tileAnimProps = useRef({ animDuration: 0,  animDelay: 0 });
   const outcome = ["lose", "win"];
   const [gameResult, setGameResult] = useState();
 
@@ -57,26 +58,50 @@ const Wordle = () => {
       } else {
         if (currAttempt.attempt === 6) {
           setGameResult(outcome[0]);
-          showToast(word.join("") + ".\nBetter luck next time!");
+          showToast(
+            word.join("") + ".\nBetter luck next time!",
+            "default",
+            false
+          );
         }
       }
     }
   };
 
   useEffect(() => {
-    setBoard({type: "initialize"});
-  },[])
+    setBoard({ type: "initialize" });
+  }, []);
 
   return (
     <div>
-      <ToastContainer position="top-center" theme="dark" pauseOnHover={false} draggable closeOnClick />
+      <ToastContainer
+        position="top-center"
+        theme="dark"
+        pauseOnHover={false}
+        draggable
+        closeOnClick
+      />
       <WordleContext.Provider
-        value={{ wordLength, board, setBoard, currAttempt, setCurrAttempt, showToast, outcome, gameResult, updateGameResult }}
+        value={{
+          wordLength,
+          board,
+          setBoard,
+          currAttempt,
+          setCurrAttempt,
+          showToast,
+          outcome,
+          gameResult,
+          updateGameResult,
+          tileAnimProps,
+        }}
       >
         {word.length === 0 ? (
           <TitleScreen setWord={setWord} />
         ) : (
-          <div style={{ height: "calc(100vh - 135px)" }} className="flex flex-col gap-5 items-center justify-between">
+          <div
+            style={{ height: "calc(100vh - 135px)" }}
+            className="flex flex-col gap-5 items-center justify-between"
+          >
             <span className="d-block"></span>
             <Board />
             <Keyboard />
